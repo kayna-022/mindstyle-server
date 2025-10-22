@@ -7,12 +7,12 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// ✅ Basic test route
+// ✅ Root route
 app.get("/", (req, res) => {
-  res.send("✅ Mindstyle API is running");
+  res.send("✅ Mindstyle API is live and working.");
 });
 
-// ✅ Book recommendation endpoint
+// ✅ Recommend route
 app.post("/recommend", async (req, res) => {
   try {
     const { loved = [], disliked = [] } = req.body;
@@ -48,5 +48,18 @@ SCORE: rate from +0.1 to +1.0
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("OpenAI error:",
+      console.error("OpenAI error:", data);
+      return res.status(500).json({ error: "OpenAI API error", details: data });
+    }
 
+    res.json({ result: data.choices[0].message.content });
+  } catch (err) {
+    console.error("Server error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+const PORT = process.env.PORT || 8787;
+app.listen(PORT, () =>
+  console.log(`✅ Mindstyle API running at http://localhost:${PORT}`)
+);
